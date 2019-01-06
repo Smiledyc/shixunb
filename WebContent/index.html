@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>shixun</title>
+	<script type="text/javascript" src="js/jquery-2.2.4.min.js"></script>
+	<script type="text/javascript">
+		$(document).ready(function () {
+			var URL = 'http://localhost:8080/demo1/Bookservlet/';
+			// 加载查询
+			$.ajax({
+				url: URL,
+				type: "GET",
+				dataType: "json",
+				success: (result) => {
+					var books = result.books;
+					var s = "";
+					$.each(books, (index, item) => {
+						s = "<tr><td id =\"id\">" + item.id + "</td><td id =\"name\">" + item.name + "</td><td id =\"author\">" + item.author +
+						"</td><td><button class = \"btn_update\">修改</button></td><td><button class = \"btn_delete\">删除</button></td></tr>";
+						$("#tab1").append(s);
+					});
+				}
+			});
+
+			// 删除
+			$("body").delegate(".btn_delete", "click", function () {
+				var item = $(this).parent().parent();
+				var id = item.children("td#id").text();
+				$.ajax({
+					url: URL + "DELETE",
+					type: "POST",
+					data: { id:id },
+					dataType: "text",
+					success: (result) => {
+						if (result === "true") {
+							item.hide();
+				        }
+						else {
+				            alert("删除失败");
+				        }
+					}
+				});
+			});
+
+			//插入			
+			$("#submit_btn").click(function() {
+				var text1 = $("#newname").val();
+				var text2 = $("#newauthor").val();
+				
+				var insert_json = {
+				          "name": text1.toString(),
+				          "author": text2.toString(),
+				        }
+				$.ajax({
+			          url: URL + 'INSERT',
+			          type: "POST",
+			          dataType: "text",
+			          data: JSON.stringify(insert_json),
+			          success: (result) => {
+								if (result === "true") {
+									window.location.reload();
+					        }
+								else {
+					            alert("添加失败");
+					        }
+			          }
+			        });
+			});
+			
+			// 修改
+			$("body").delegate(".btn_update", "click", function () {
+				var item = $(this).parent().parent();
+				var childrens = item.children();
+				var json = {};
+				$.each(childrens, (index, item) => {
+					if (index > 2) {
+						return false;
+					}
+					console.log(index, item);
+				});
+			});
+		
+		});
+	</script>
+	<style type="text/css">
+		table {
+			border: 1px solid green;
+			margin: 0 auto;
+		}
+
+		th {
+			width: 150px;
+			border: 1px solid green;
+			text-align: center;
+		}
+
+		td {
+			width: 150px;
+			border: 1px solid green;
+			text-align: center;
+		}
+	</style>
+</head>
+
+<body>
+	<table id="tab1">
+		<tr>
+			<td colspan="5">book信息</td>
+		</tr>
+		<tr>
+			<th>编号</th>
+			<th>书名</th>
+			<th>作者</th>
+			<th>修改操作</th>
+			<th>删除操作</th>
+		</tr>
+	</table>
+	<form>
+	<table style="margin:40px auto;">
+		<tr>
+			<td colspan="2">添加book</td>
+		</tr>
+		<tr>
+			<td>书名：</td>
+			<td><input type="text" name="name" id = "newname"/></td>
+		</tr>
+		<tr>
+			<td>作者：</td>
+			<td><input type="text" name="author" id = "newauthor"/></td>
+		</tr>
+		<tr>
+			<td> </td>
+			<td>
+				<input type="button" value="添加" id = "submit_btn"/>
+				<input type="reset" value="重置" />
+			</td>
+		</tr>
+	</table>
+	</form>
+</body>
+
+</html>
